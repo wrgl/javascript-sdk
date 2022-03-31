@@ -1,0 +1,43 @@
+{
+  "name": "wrgl",
+  "version": "0.10.2",
+  "description": "client library for wrgl",
+  "main": "index.js",
+  "scripts": {
+    "cli": "ts-node src/cli.ts",
+    "test": "jest",
+    "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist build",
+    "ts-node": "ts-node"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wrgl/js-sdk.git"
+  },
+  "keywords": [
+    "wrgl"
+  ],
+  "author": "Khoi Pham",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/wrgl/js-sdk/issues"
+  },
+  "homepage": "https://github.com/wrgl/js-sdk#readme",
+  "devDependencies": {
+    "@types/jest": "^27.4.1",
+    "@types/node": "^17.0.23",
+    "@typescript-eslint/eslint-plugin": "^5.17.0",
+    "@typescript-eslint/parser": "^5.17.0",
+    "esbuild": "^0.14.29",
+    "eslint": "^8.12.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
+  },
+  "dependencies": {
+    "ky": "^0.30.0",
+    "ky-universal": "^0.10.1"
+  }
+}
