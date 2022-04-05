@@ -127,7 +127,7 @@ export class Column {
   }
 }
 
-type Table = {
+export type Table = {
   columns: string[];
   pk: string[];
 };
