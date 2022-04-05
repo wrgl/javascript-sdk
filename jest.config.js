@@ -7,6 +7,7 @@ export default {
   transform: {
     "^.+\\.(ts|tsx)$": "ts-jest",
   },
+  transformIgnorePatterns: ["<rootDir>/node_modules/"],
   globalSetup: "<rootDir>/jest_setup.js",
   testEnvironment: "node",
 };

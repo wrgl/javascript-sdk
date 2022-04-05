@@ -1,5 +1,5 @@
 import FormData from "form-data";
-import got, { Got, ExtendOptions } from "got";
+import got, { Got, ExtendOptions, Hooks } from "got";
 import { pipeline, Readable } from "stream";
 import { promisify } from "util";
 import { createGzip } from "zlib";
@@ -25,12 +25,13 @@ import {
 const pipe = promisify(pipeline);
 
 type GetRefsResponse = {
-  refs: Map<string, string>;
+  refs: { [key: string]: string };
 };
 
 export class Repository {
   endpoint: string;
   private _client: Got;
+  hooks: Hooks;
 
   public constructor(endpoint: string, idToken?: string) {
     this.endpoint = endpoint.endsWith("/")
@@ -43,6 +44,14 @@ export class Repository {
       opts.headers = { Authorization: `Bearer ${idToken}` };
     }
     this._client = got.extend(opts);
+    this.hooks = {
+      beforeError: [
+        (error) => {
+          error.message = `${error.message}\n  url: ${error.request?.requestUrl}\n  payload: ${error.response?.body}`;
+          return error;
+        },
+      ],
+    };
   }
 
   private _isHubRepo() {
@@ -55,6 +64,7 @@ export class Repository {
       : this.endpoint + "/authenticate/";
     const response: AuthenticateResponse = await got
       .post(endpoint, {
+        hooks: this.hooks,
         json: {
           email: email,
           password: password,
@@ -69,13 +79,17 @@ export class Repository {
   }
 
   public async getRefs() {
-    const resp: GetRefsResponse = await this._client.get("/refs/").json();
+    const resp: GetRefsResponse = await this._client
+      .get("refs/", { hooks: this.hooks })
+      .json();
     return resp.refs;
   }
 
   public async getBranch(branch: string) {
     return commitPayload(
-      (await this._client.get(`/refs/heads/${branch}/`).json()) as CommitInit
+      (await this._client
+        .get(`refs/heads/${branch}/`, { hooks: this.hooks })
+        .json()) as CommitInit
     );
   }
 
@@ -106,7 +120,8 @@ export class Repository {
       fd.append("txid", txid);
     }
     return (await this._client
-      .post("/commits/", {
+      .post("commits/", {
+        hooks: this.hooks,
         body: fd.getBuffer(),
         headers: fd.getHeaders(),
       })
@@ -115,31 +130,39 @@ export class Repository {
 
   public async getCommitTree(head: string, maxDepth: number) {
     return (await this._client
-      .get("/commits/", { searchParams: { head: head, maxDepth: maxDepth } })
+      .get("commits/", {
+        hooks: this.hooks,
+        searchParams: { head: head, maxDepth: maxDepth },
+      })
       .json()) as CommitTree;
   }
 
   public async getCommit(commitSum: string) {
     return commitPayload(
-      (await this._client.get(`/commits/${commitSum}`).json()) as CommitInit
+      (await this._client
+        .get(`commits/${commitSum}`, { hooks: this.hooks })
+        .json()) as CommitInit
     );
   }
 
   public async getTable(tableSum: string) {
-    return (await this._client.get(`/tables/${tableSum}`).json()) as Table;
+    return (await this._client
+      .get(`tables/${tableSum}/`, { hooks: this.hooks })
+      .json()) as Table;
   }
 
   public async getBlocks(
     commit: string,
-    options: { start?: number; end?: number; withColumnNames?: boolean }
+    options?: { start?: number; end?: number; withColumnNames?: boolean }
   ) {
     const buf = await this._client
-      .get("/blocks/", {
+      .get("blocks/", {
+        hooks: this.hooks,
         searchParams: {
           head: commit,
-          start: options.start,
-          end: options.end,
-          columns: options.withColumnNames === false ? "false" : "true",
+          start: options?.start,
+          end: options?.end,
+          columns: options?.withColumnNames === false ? "false" : "true",
         },
       })
       .buffer();
@@ -148,14 +171,15 @@ export class Repository {
 
   public async getTableBlocks(
     tableSum: string,
-    options: { start?: number; end?: number; withColumnNames?: boolean }
+    options?: { start?: number; end?: number; withColumnNames?: boolean }
   ) {
     const buf = await this._client
-      .get(`/tables/${tableSum}/blocks/`, {
+      .get(`tables/${tableSum}/blocks/`, {
+        hooks: this.hooks,
         searchParams: {
-          start: options.start,
-          end: options.end,
-          columns: options.withColumnNames === false ? "false" : "true",
+          start: options?.start,
+          end: options?.end,
+          columns: options?.withColumnNames === false ? "false" : "true",
         },
       })
       .buffer();
@@ -164,7 +188,8 @@ export class Repository {
 
   public async getRows(commit: string, offsets: number[]) {
     const buf = await this._client
-      .get("/rows/", {
+      .get("rows/", {
+        hooks: this.hooks,
         searchParams: {
           head: commit,
           offsets: offsets.join(","),
@@ -176,7 +201,8 @@ export class Repository {
 
   public async getTableRows(tableSum: string, offsets: number[]) {
     const buf = await this._client
-      .get(`/tables/${tableSum}/rows/`, {
+      .get(`tables/${tableSum}/rows/`, {
+        hooks: this.hooks,
         searchParams: {
           offsets: offsets.join(","),
         },
@@ -187,13 +213,16 @@ export class Repository {
 
   public async diff(sum1: string, sum2: string) {
     return (await this._client
-      .get(`/diff/${sum1}/${sum2}/`)
+      .get(`diff/${sum1}/${sum2}/`, {
+        hooks: this.hooks,
+      })
       .json()) as DiffResult;
   }
 
   public async createTransaction(req?: CreateTransactionRequest) {
     return (await this._client
-      .post("/transactions/", {
+      .post("transactions/", {
+        hooks: this.hooks,
         json: req ? createTransactionRequestPayload(req) : undefined,
       })
       .json()) as CreateTransactionResponse;
@@ -201,18 +230,24 @@ export class Repository {
 
   public async getTransaction(id: string) {
     return getTransactionResponse(
-      await this._client.get(`/transactions/${id}/`).json()
+      await this._client
+        .get(`transactions/${id}/`, {
+          hooks: this.hooks,
+        })
+        .json()
     );
   }
 
   public async commitTransaction(id: string) {
-    return await this._client.post(`/transactions/${id}/`, {
+    return await this._client.post(`transactions/${id}/`, {
+      hooks: this.hooks,
       json: { commit: true },
     });
   }
 
   public async discardTransaction(id: string) {
-    return await this._client.post(`/transactions/${id}/`, {
+    return await this._client.post(`transactions/${id}/`, {
+      hooks: this.hooks,
       json: { discard: true },
     });
   }

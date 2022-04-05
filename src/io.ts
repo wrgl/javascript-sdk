@@ -35,6 +35,7 @@ export class InMemoryWritable extends Writable {
   }
 
   _destroy(
+    // @ts-ignore
     error: Error | null,
     callback: (error?: Error | null) => void
   ): void {

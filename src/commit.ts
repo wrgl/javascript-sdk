@@ -11,6 +11,8 @@ export type Table = {
   rowsCount?: number;
 };
 
+export type CommitsDict = { [key: string]: Commit };
+
 export type CommitInit = {
   sum: string;
   authorName: string;
@@ -19,7 +21,7 @@ export type CommitInit = {
   table: Table;
   time: string;
   parents?: string[];
-  parentCommits?: Map<string, Commit>;
+  parentCommits?: CommitsDict;
 };
 
 export type Commit = Omit<CommitInit, "time"> & {
@@ -33,11 +35,7 @@ export const commitPayload = (obj: CommitInit): Commit => {
   };
 };
 
-export class CommitTree {
-  sum?: string;
-  root?: Commit;
-
-  public constructor(init?: Partial<CommitTree>) {
-    Object.assign(this, init);
-  }
-}
+export type CommitTree = {
+  sum: string;
+  root: Commit;
+};
