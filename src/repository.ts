@@ -11,6 +11,7 @@ import {
   commitPayload,
   CommitResult,
   CommitTree,
+  CommitTreeInit,
   Table,
 } from "./commit";
 import { InMemoryWritable } from "./io";
@@ -129,12 +130,14 @@ export class Repository {
   }
 
   public async getCommitTree(head: string, maxDepth: number) {
-    return (await this._client
-      .get("commits/", {
-        hooks: this.hooks,
-        searchParams: { head: head, maxDepth: maxDepth },
-      })
-      .json()) as CommitTree;
+    return new CommitTree(
+      (await this._client
+        .get("commits/", {
+          hooks: this.hooks,
+          searchParams: { head: head, maxDepth: maxDepth },
+        })
+        .json()) as CommitTreeInit
+    );
   }
 
   public async getCommit(commitSum: string) {

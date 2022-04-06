@@ -314,17 +314,17 @@ export class ColDiff {
 
   combineRows(layer: number, row: string[], oldRow: string[]) {
     const n = this.columns.length;
-    const mergedRows = [];
+    const mergedRows: [string | null, string | null][] = [];
     for (let i = 0; i < n; i++) {
       const col = this.columns[i];
       if (col.added.has(layer)) {
-        mergedRows.push([row[col.layerIdx[layer]]]);
+        mergedRows.push([row[col.layerIdx[layer]], null]);
       } else {
         const baseIdx = col.baseIdx || 0;
         if (col.removed.has(layer)) {
-          mergedRows.push([oldRow[baseIdx]]);
+          mergedRows.push([null, oldRow[baseIdx]]);
         } else if (row[col.layerIdx[layer]] === oldRow[baseIdx]) {
-          mergedRows.push([oldRow[baseIdx]]);
+          mergedRows.push([oldRow[baseIdx], oldRow[baseIdx]]);
         } else {
           mergedRows.push([row[col.layerIdx[layer]], oldRow[baseIdx]]);
         }

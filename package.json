@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/wrgl/js-sdk#readme",
   "devDependencies": {
+    "@ngneat/falso": "^4.0.0",
     "@types/jest": "^27.4.1",
     "@types/lodash": "^4.14.181",
     "@types/node": "^17.0.23",

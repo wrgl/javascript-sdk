@@ -35,7 +35,35 @@ export const commitPayload = (obj: CommitInit): Commit => {
   };
 };
 
-export type CommitTree = {
+export type CommitTreeInit = {
   sum: string;
   root: Commit;
 };
+
+export class CommitTree {
+  sum: string;
+  root: Commit;
+
+  constructor(obj: CommitTreeInit) {
+    this.sum = obj.sum;
+    this.root = obj.root;
+  }
+
+  public getNode(...indices: number[]): Commit | undefined {
+    let commit = this.root;
+    for (const ind of indices) {
+      if (commit.parents && ind < commit.parents.length) {
+        const sum = commit.parents[ind];
+        commit = (commit.parentCommits as CommitsDict)[sum];
+        commit.sum = sum;
+      } else {
+        return undefined;
+      }
+    }
+    return commit;
+  }
+
+  public getLeftMostNodeAtDepth(depth: number): Commit | undefined {
+    return this.getNode(...new Array(depth).fill(0));
+  }
+}
