@@ -10,4 +10,6 @@ export default {
   transformIgnorePatterns: ["<rootDir>/node_modules/"],
   globalSetup: "<rootDir>/jest_setup.js",
   testEnvironment: "node",
+  collectCoverage: true,
+  collectCoverageFrom: ["**/*.ts", "!src/test-utils.ts"],
 };

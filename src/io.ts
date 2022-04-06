@@ -1,17 +1,5 @@
 import { Writable, WritableOptions } from "stream";
 
-export const getFileContent = async (
-  data: string | Buffer
-): Promise<string> => {
-  if (data instanceof Buffer) {
-    return data.toString("utf8");
-  }
-  if (typeof data === "string") {
-    return data;
-  }
-  throw new Error("unhandled data type: " + typeof data);
-};
-
 export class InMemoryWritable extends Writable {
   data: Buffer[];
   buffer?: Buffer;

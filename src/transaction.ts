@@ -1,7 +1,7 @@
 export type CreateTransactionRequest = {
   id: string;
   begin: Date;
-  end: Date;
+  end?: Date;
   status: string;
 };
 
@@ -10,7 +10,7 @@ export type CreateTransactionRawRequest = Omit<
   "begin" | "end"
 > & {
   begin: string;
-  end: string;
+  end?: string;
 };
 
 export const createTransactionRequestPayload = (
@@ -19,7 +19,7 @@ export const createTransactionRequestPayload = (
   return {
     ...obj,
     begin: obj.begin.toISOString(),
-    end: obj.end.toISOString(),
+    end: obj.end ? obj.end.toISOString() : undefined,
   };
 };
 
@@ -29,14 +29,14 @@ export type CreateTransactionResponse = {
 
 export type TxBranch = {
   name: string;
-  currentSum: string;
+  currentSum?: string;
   newSum: string;
 };
 
 export type GetTransactionResponse = {
   status: string;
   begin: Date;
-  end: Date;
+  end?: Date;
   branches: TxBranch[];
 };
 
@@ -45,15 +45,19 @@ export type GetTransactionRawResponse = Omit<
   "begin" | "end"
 > & {
   begin: string;
-  end: string;
+  end?: string;
 };
 
 export const getTransactionResponse = (
   obj: GetTransactionRawResponse
 ): GetTransactionResponse => {
+  let end = obj.end ? new Date(obj.end) : undefined;
+  if (end && end.getTime() <= 0) {
+    end = undefined;
+  }
   return {
     ...obj,
     begin: new Date(obj.begin),
-    end: new Date(obj.end),
+    end,
   };
 };
