@@ -51,7 +51,7 @@ export const wrgl = (repoDir: string, args: string[]) =>
       if (code !== 0) {
         reject(
           new Error(
-            `wrgld exited with code ${code}:\n  stdout: ${stdout.join(
+            `wrgl exited with code ${code}:\n  stdout: ${stdout.join(
               ""
             )}\n  stderr: ${stderr.join("")}`
           )
