@@ -2,7 +2,6 @@
   "name": "wrgl",
   "version": "0.10.3",
   "description": "client library for wrgl",
-  "main": "index.js",
   "type": "module",
   "scripts": {
     "cli": "ts-node src/cli.ts",
@@ -12,9 +11,10 @@
     "clean": "rm -rf dist build",
     "ts-node": "ts-node"
   },
+  "main": "dist/tsc/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wrgl/js-sdk.git"
+    "url": "git+https://github.com/wrgl/javascript-sdk.git"
   },
   "keywords": [
     "wrgl"
@@ -22,9 +22,9 @@
   "author": "Khoi Pham",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/wrgl/js-sdk/issues"
+    "url": "https://github.com/wrgl/javascript-sdk/issues"
   },
-  "homepage": "https://github.com/wrgl/js-sdk#readme",
+  "homepage": "https://github.com/wrgl/javascript-sdk#readme",
   "devDependencies": {
     "@ngneat/falso": "^4.0.0",
     "@types/jest": "^27.4.1",
